@@ -69,11 +69,15 @@ async def mutechat_command(ctx, member: discord.Member):
 async def unmutechat_command(ctx, member: discord.Member):
     if ctx.author.guild_permissions.moderate_members:
         mute_role = discord.utils.get(ctx.guild.roles, name="MutedFromChat")
-        if mute_role is not None:
+        if mute_role is None:
+            await ctx.send("MutedFromChat role not found.")
+            return
+
+        if mute_role in member.roles:
             await member.remove_roles(mute_role)
             await ctx.send(f"{member.mention} has been unmuted from the chat.")
         else:
-            await ctx.send("User is not muted.")
+            await ctx.send("User is not muted in chat.")
     else:
         await ctx.send("You don't have permissions to use this command.")
 
@@ -128,11 +132,15 @@ async def mutevoice_command(ctx, member: discord.Member):
 async def unmutevoice_command(ctx, member: discord.Member):
     if ctx.author.guild_permissions.moderate_members:
         mutevoice_role = discord.utils.get(ctx.guild.roles, name="MutedFromVoice")
-        if mutevoice_role is not None:
+        if mutevoice_role is None:
+            await ctx.send("MutedFromVoice role does not exist on this server.")
+            return
+
+        if mutevoice_role in member.roles:
             await member.remove_roles(mutevoice_role)
             await ctx.send(f"{member.mention} has been unmuted from voice channels.")
         else:
-            await ctx.send("User is not muted in voice channels.")
+            await ctx.send(f"{member.mention} is not muted in voice channels.")
     else:
         await ctx.send("You don't have permissions to use this command.")
 
@@ -200,7 +208,6 @@ async def warn_command(ctx, member: discord.Member, *, reason: str = "No reason 
     else:
         await ctx.send("You don't have permissions to use this command.")
 
-
 @bot.command(name='unwarn')
 async def unwarn_command(ctx, member: discord.Member):
     if ctx.author.guild_permissions.moderate_members:
@@ -227,7 +234,6 @@ async def unwarn_command(ctx, member: discord.Member):
                 await ctx.send(f"{member.mention} has been unmuted since they now have fewer than 3 warnings.")
     else:
         await ctx.send("You don't have permissions to use this command.")
-
 
 @bot.command(name='checkwarns')
 async def checkwarns_command(ctx, member: discord.Member):
@@ -370,7 +376,6 @@ async def timeout_target_user(ctx):
     except Exception as e:
         await ctx.send(f"An error occurred: {e}")
 
-
 @bot.event
 async def on_ready():
     print(f'Logged in as {bot.user.name} (ID: {bot.user.id})')
@@ -398,7 +403,6 @@ async def on_member_join(member):
             print(f"[on_member_join] No permission to send messages in #{channel.name}.")
     else:
         print("[on_member_join] Channel 'general' not found.")
-
 
 @bot.event
 async def on_member_remove(member):
